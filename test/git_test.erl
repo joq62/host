@@ -49,6 +49,7 @@ git_repo()->
     {error,{error,["Already updated ","catalog/host_specs"]}}=host:update_repo(),
     
     ["c200","c201","c202","c230","c50"]=lists:sort(host:get_hostnames()),
+   
     {ok,Map}=host:get_host_map("c50"),
     [
      {application_config,[]},
@@ -58,6 +59,15 @@ git_repo()->
      {ssh_port,22},
      {userid,"joq62"}]=lists:sort(maps:to_list(Map)),
 
+    {ok,"c50"}=host:get_info(hostname,"c50"),
+    {ok,"172.18.221.251"}=host:get_info(ip,"c50"),
+    {ok,22}=host:get_info(ssh_port,"c50"),
+    {ok,[]}=host:get_info(application_config,"c50"),
+    {ok,"joq62"}=host:get_info(userid,"c50"),
+    {ok,"festum01"}=host:get_info(password,"c50"),
+
+    {error,{badkey,glurk},_,_,_}=host:get_info(glurk,"c50"),
+    {error,["Host doens't exists",glurk]}=host:get_info(password,glurk),
     ok.
 %% --------------------------------------------------------------------
 %% Function: available_hosts()

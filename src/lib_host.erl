@@ -14,6 +14,7 @@
  
 %% API
 -export([
+	 get_info/3,
 	 check_update_repo_return_host_maps/2,
 	 get_paths/1,
 	 is_appl_updated/1,
@@ -36,6 +37,21 @@
 
 
 %%********************* Host *****************************************    
+get_info(Key,HostName,HostSpecMaps)->
+    Result=case [Map||Map<-HostSpecMaps,
+		      HostName==maps:get(hostname,Map)] of
+	       []->
+		   {error,["Host doens't exists",HostName]};
+	       [Map]->
+		   case maps:get(Key,Map) of
+		       {badkey,Key}->
+			   {error,["Badkey ",Key]};
+		       Value->
+			   {ok,Value}
+		   end
+	   end,
+    Result. 
+
 
 %%--------------------------------------------------------------------
 %% @doc

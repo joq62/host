@@ -30,6 +30,7 @@
 	]).
 
 -export([
+	 get_info/2,
 	 get_hostnames/0,
 	 get_host_maps/0,
 	 get_host_map/1,
@@ -73,6 +74,17 @@
 
 %%********************* Appl *****************************************
 
+%%--------------------------------------------------------------------
+%% @doc
+%% get the full path to ebin and if presence the priv dirs to application
+%% ApplId  
+%% 
+%% @end
+%%--------------------------------------------------------------------
+-spec get_info(Key:: atom(),HostName :: string()) -> 
+	  {ok,Value:: term()} | {error, Reason :: term()}.
+get_info(Key,HostName) ->
+    gen_server:call(?SERVER,{get_info,Key,HostName},infinity).
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -350,10 +362,9 @@ handle_call({get_host_map,HostName}, _From, State) ->
 	  end,
     {reply, Reply, State};
 
-
-handle_call({is_appl_updated,ApplId}, _From, State) ->
-    ApplDir=filename:join([State#state.main_dir,ApplId]),
-    Result=try lib_catalog:is_inventory_updated(ApplDir) of
+handle_call({get_info,Key,HostName}, _From, State) ->
+    HostSpecMaps=State#state.host_spec_maps,
+    Result=try lib_host:get_info(Key,HostName,HostSpecMaps) of
 	       {ok,R}->
 		   {ok,R};
 	       {error,Reason}->
@@ -363,16 +374,12 @@ handle_call({is_appl_updated,ApplId}, _From, State) ->
 		   {Event,Reason,Stacktrace,?MODULE,?LINE}
 	   end,
     Reply=case Result of
-	      {ok,IsUpdated}->
-		  %io:format("IsUpdated ~p~n",[{IsUpdated,?MODULE,?LINE}]),
-		  NewState=State,
-		  IsUpdated;
+	      {ok,Value}->
+		  {ok,Value};
 	      ErrorEvent->
-		%  io:format("ErrorEvent ~p~n",[{ErrorEvent,?MODULE,?LINE}]),
-		  NewState=State,
-		  {error,ErrorEvent}
+		  ErrorEvent
 	  end,
-    {reply, Reply, NewState};
+    {reply, Reply, State};
 
 handle_call({update_appl,ApplId}, _From, State) ->
     ApplDir=filename:join([State#state.main_dir,ApplId]),
