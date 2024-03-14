@@ -518,7 +518,7 @@ handle_cast(UnMatchedSignal, State) ->
 	  {stop, Reason :: normal | term(), NewState :: term()}.
 
 handle_info(timeout, State) ->
-    io:format("timeout ~p~n",[{?MODULE,?LINE}]),
+ %   io:format("timeout ~p~n",[{?MODULE,?LINE}]),
     RepoDir=State#state.repo_dir,
     RepoGit=State#state.repo_git,
     Result=try lib_host:check_update_repo_return_host_maps(RepoDir,RepoGit) of
@@ -532,7 +532,7 @@ handle_info(timeout, State) ->
 	   end,
     NewState=case Result of
 		 {ok,HostSpecMaps}->
-		     io:format("HostSpecMaps ~p~n",[{HostSpecMaps,?MODULE,?LINE}]),
+		 %    io:format("HostSpecMaps ~p~n",[{HostSpecMaps,?MODULE,?LINE}]),
 		     NewState=State#state{host_spec_maps=HostSpecMaps};
 		 ErrorEvent->
 		     io:format("ErrorEvent ~p~n",[{ErrorEvent,?MODULE,?LINE}]),
